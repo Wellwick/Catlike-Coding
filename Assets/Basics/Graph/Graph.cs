@@ -8,6 +8,8 @@ public class Graph : MonoBehaviour
     [Range(10,100)]
     public int resolution = 10;
 
+    Transform[] points;
+
     private void Awake()
     {
         float step = 2f / resolution;
@@ -15,13 +17,22 @@ public class Graph : MonoBehaviour
         Vector3 position;
         position.y = 0f;
         position.z = 0f;
-        for (int i = 0; i<resolution; ++i) { 
-            Transform point = Instantiate(pointPrefab);
+        points = new Transform[resolution];
+        for (int i = 0; i < points.Length; ++i) {
+            points[i] = Instantiate(pointPrefab);
             position.x = (i + 0.5f) * step - 1f;
-            position.y = position.x * position.x;
-            point.localPosition = position;
-            point.localScale = scale;
-            point.SetParent(transform, false);
+            points[i].localPosition = position;
+            points[i].localScale = scale;
+            points[i].SetParent(transform, false);
+        }
+    }
+
+    private void Update()
+    {
+        for (int i = 0; i < points.Length; i++) {
+            Vector3 position = points[i].localPosition;
+            position.y = Mathf.Sin(Mathf.PI * (position.x + Time.time));
+            points[i].localPosition = position;
         }
     }
 }
