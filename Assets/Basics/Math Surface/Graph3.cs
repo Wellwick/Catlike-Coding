@@ -16,7 +16,9 @@ public class Graph3 : MonoBehaviour
         Sine2DFunction, 
         MultiSineFunction,
         MultiSine2DFunction, 
-        Ripple
+        Ripple,
+        Cylinder,
+        Sphere
     };
 
     private void Awake()
@@ -98,6 +100,29 @@ public class Graph3 : MonoBehaviour
         p.y = Mathf.Sin(pi * (4f * d - t));
         p.y /= 1f + 10f * d;
         p.z = z;
+        return p;
+    }
+
+    private static Vector3 Cylinder(float u, float v, float t)
+    {
+        Vector3 p;
+        float r = 0.8f + Mathf.Sin(pi * (6f * u + 2f * v + t)) * 0.2f;
+        p.x = r * Mathf.Sin(pi * u);
+        p.y = v;
+        p.z = r * Mathf.Cos(pi * u);
+        return p;
+    }
+
+    private static Vector3 Sphere(float u, float v, float t)
+    {
+        Vector3 p;
+        float r = 0.8f + Mathf.Sin(pi * (6f * u + t)) * 0.1f;
+        r += Mathf.Sin(pi * (4f * v + t)) * 0.1f;
+        //r = 1.0f;
+        float s = r * Mathf.Cos(pi * 0.5f * v);
+        p.x = s * Mathf.Sin(pi * u);
+        p.y = r * Mathf.Sin(pi * 0.5f * v);
+        p.z = s * Mathf.Cos(pi * u);
         return p;
     }
 }
