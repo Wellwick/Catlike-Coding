@@ -245,7 +245,7 @@ MonoBehaviour:
   pointPrefab: {fileID: 4378028150919682934, guid: 89f5a35ca9fd4d946bbb7a44fb9117ef,
     type: 3}
   resolution: 100
-  function: 6
+  function: 7
 --- !u!4 &1836200189
 Transform:
   m_ObjectHideFlags: 0

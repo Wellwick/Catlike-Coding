@@ -18,7 +18,8 @@ public class Graph3 : MonoBehaviour
         MultiSine2DFunction, 
         Ripple,
         Cylinder,
-        Sphere
+        Sphere,
+        Torus
     };
 
     private void Awake()
@@ -122,6 +123,18 @@ public class Graph3 : MonoBehaviour
         float s = r * Mathf.Cos(pi * 0.5f * v);
         p.x = s * Mathf.Sin(pi * u);
         p.y = r * Mathf.Sin(pi * 0.5f * v);
+        p.z = s * Mathf.Cos(pi * u);
+        return p;
+    }
+
+    private static Vector3 Torus(float u, float v, float t)
+    {
+        Vector3 p;
+        float r1 = 0.65f + Mathf.Sin(pi * (6f * u + t)) * 0.1f;
+        float r2 = 0.2f + Mathf.Sin(pi * (4f * v + t)) * 0.05f;
+        float s = r2 * Mathf.Cos(pi * v) + r1;
+        p.x = s * Mathf.Sin(pi * u);
+        p.y = r2 * Mathf.Sin(pi * v);
         p.z = s * Mathf.Cos(pi * u);
         return p;
     }

@@ -6,5 +6,6 @@
     MultiSine2D,
     Ripple,
     Cylinder,
-    Sphere
+    Sphere,
+    Torus
 }
