@@ -23,19 +23,11 @@ public class Graph3 : MonoBehaviour
     {
         float step = 2f / resolution;
         Vector3 scale = Vector3.one * step;
-        Vector3 position;
-        position.y = 0f;
-        position.z = 0f;
         points = new Transform[resolution * resolution];
-        for (int i = 0, z = 0; z < resolution; z++) {
-            position.z = (z + 0.5f) * step - 1f;
-            for (int x = 0; x < resolution; x++, i++) {
-                points[i] = Instantiate(pointPrefab);
-                position.x = (x + 0.5f) * step - 1f;
-                points[i].localPosition = position;
-                points[i].localScale = scale;
-                points[i].SetParent(transform, false);
-            }
+        for (int i = 0; i < points.Length; i++) {
+            points[i] = Instantiate(pointPrefab);
+            points[i].localScale = scale;
+            points[i].SetParent(transform, false);
         }
     }
 
@@ -43,50 +35,69 @@ public class Graph3 : MonoBehaviour
     {
         float t = Time.time;
         GraphFunction f = functions[(int)function];
-        for (int i = 0; i < points.Length; i++) {
-            Vector3 position = points[i].localPosition;
-            position.y = f(position.x, position.z, t);
-            points[i].localPosition = position;
+        float step = 2f / resolution;
+        for (int i = 0, z = 0; z < resolution; z++) {
+            float v = (z + 0.5f) * step - 1f;
+            for (int x = 0; x < resolution; x++, i++) {
+                float u = (x + 0.5f) * step - 1f;
+                points[i].localPosition = f(u, v, t);
+            }
         }
     }
 
     const float pi = Mathf.PI;
 
-    private static float SineFunction(float x, float z, float t)
+    private static Vector3 SineFunction(float x, float z, float t)
     {
-        return Mathf.Sin(pi * (x + t));
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Sin(pi * (x + t));
+        p.z = z;
+        return p;
     }
 
-    private static float MultiSineFunction(float x, float z, float t)
+    private static Vector3 MultiSineFunction(float x, float z, float t)
     {
-        float y = Mathf.Sin(pi * (x + t));
-        y += Mathf.Sin(2f * pi * (x + 2f * t)) * 0.5f;
-        y *= 2f / 3f;
-        return y;
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Sin(pi * (x + t));
+        p.y += Mathf.Sin(2f * pi * (x + 2f * t)) * 0.5f;
+        p.y *= 2f / 3f;
+        p.z = z;
+        return p;
     }
 
-    private static float Sine2DFunction(float x, float z, float t)
+    private static Vector3 Sine2DFunction(float x, float z, float t)
     {
-        float y = Mathf.Sin(pi * (x + t));
-        y += Mathf.Sin(pi * (z + t));
-        y *= 0.5f;
-        return y;
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Sin(pi * (x + t));
+        p.y += Mathf.Sin(pi * (z + t));
+        p.y *= 0.5f;
+        p.z = z;
+        return p;
     }
 
-    private static float MultiSine2DFunction(float x, float z, float t)
+    private static Vector3 MultiSine2DFunction(float x, float z, float t)
     {
-        float y = 4f * Mathf.Sin(pi * (x + z + t * 0.5f));
-        y += Mathf.Sin(pi * (x + t));
-        y += Mathf.Sin(2f * pi * (z + 2f * t)) * 0.5f;
-        y *= 1f / 5.5f;
-        return y;
+        Vector3 p;
+        p.x = x;
+        p.y = 4f * Mathf.Sin(pi * (x + z + t * 0.5f));
+        p.y += Mathf.Sin(pi * (x + t));
+        p.y += Mathf.Sin(2f * pi * (z + 2f * t)) * 0.5f;
+        p.y *= 1f / 5.5f;
+        p.z = z;
+        return p;
     }
 
-    private static float Ripple(float x, float z, float t)
+    private static Vector3 Ripple(float x, float z, float t)
     {
+        Vector3 p;
+        p.x = x;
         float d = Mathf.Sqrt(x * x + z * z);
-        float y = Mathf.Sin(pi * (4f * d - t));
-        y /= 1f + 10f * d;
-        return y;
+        p.y = Mathf.Sin(pi * (4f * d - t));
+        p.y /= 1f + 10f * d;
+        p.z = z;
+        return p;
     }
 }
