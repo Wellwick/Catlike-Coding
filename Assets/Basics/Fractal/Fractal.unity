@@ -236,7 +236,7 @@ MonoBehaviour:
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: 97aa1dbff57bb914888a60f403c9c91b, type: 2}
   childScale: 0.5
-  waitTime: 0.3
+  waitTime: 0.5
   maxDepth: 4
 --- !u!4 &486245628
 Transform:
