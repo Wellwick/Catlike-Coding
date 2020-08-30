@@ -10,10 +10,13 @@ public class RigidbodyMovingSphere : MonoBehaviour {
     private float maxAcceleration = 10f, maxAirAcceleration = 1f;
 
     [SerializeField, Range(0f, 10f)]
-    float jumpHeight = 2f;
+    private float jumpHeight = 2f;
 
     [SerializeField, Range(0, 5)]
     private int maxAirJumps = 0;
+
+    [SerializeField, Range(0f, 90f)]
+    private float maxGroundAngle = 25f;
 
     private Vector3 velocity, desiredVelocity;
 
@@ -22,7 +25,15 @@ public class RigidbodyMovingSphere : MonoBehaviour {
 
     private bool onGround;
 
+    private float minGroundDotProduct;
+
+    private Vector3 contactNormal;
+
     private Rigidbody body;
+
+    private void OnValidate() {
+        minGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
+    }
 
     // Start is called before the first frame update
     void Start() {
@@ -42,10 +53,7 @@ public class RigidbodyMovingSphere : MonoBehaviour {
 
     private void FixedUpdate() {
         UpdateState();
-        float acceleration = onGround ? maxAcceleration : maxAirAcceleration;
-        float maxSpeedChange = acceleration * Time.deltaTime;
-        velocity.x = Mathf.MoveTowards(velocity.x, desiredVelocity.x, maxSpeedChange);
-        velocity.z = Mathf.MoveTowards(velocity.z, desiredVelocity.z, maxSpeedChange);
+        AdjustVelocity();
 
         if (desiredJump) {
             desiredJump = false;
@@ -60,6 +68,8 @@ public class RigidbodyMovingSphere : MonoBehaviour {
         velocity = body.velocity;
         if (onGround) {
             jumpPhase = 0;
+        } else {
+            contactNormal = Vector3.up;
         }
     }
 
@@ -67,10 +77,11 @@ public class RigidbodyMovingSphere : MonoBehaviour {
         if (onGround || jumpPhase < maxAirJumps) {
             jumpPhase += 1;
             float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
-            if (velocity.y > 0f) {
-                jumpSpeed = Mathf.Max(jumpSpeed - velocity.y, 0f);
+            float alignedSpeed = Vector3.Dot(velocity, contactNormal);
+            if (alignedSpeed > 0f) {
+                jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f);
             }
-            velocity.y += jumpSpeed;
+            velocity += contactNormal * jumpSpeed;
         }
     }
 
@@ -85,7 +96,30 @@ public class RigidbodyMovingSphere : MonoBehaviour {
     private void EvaluateCollision(Collision collision) {
         for (int i = 0; i < collision.contactCount; i++) {
             Vector3 normal = collision.GetContact(i).normal;
-            onGround |= normal.y >= 0.9f;
+            if (normal.y > minGroundDotProduct) {
+                onGround |= true;
+                contactNormal = normal;
+            }
         }
+    }
+
+    private Vector3 ProjectOnContactPlane(Vector3 vector) {
+        return vector - contactNormal * Vector3.Dot(vector, contactNormal);
+    }
+
+    private void AdjustVelocity() {
+        Vector3 xAxis = ProjectOnContactPlane(Vector3.right).normalized;
+        Vector3 zAxis = ProjectOnContactPlane(Vector3.forward).normalized;
+
+        float currentX = Vector3.Dot(velocity, xAxis);
+        float currentZ = Vector3.Dot(velocity, zAxis);
+
+        float acceleration = onGround ? maxAcceleration : maxAcceleration;
+        float maxSpeedChange = acceleration * Time.deltaTime;
+
+        float newX = Mathf.MoveTowards(currentX, desiredVelocity.x, maxSpeedChange);
+        float newZ = Mathf.MoveTowards(currentZ, desiredVelocity.z, maxSpeedChange);
+
+        velocity += xAxis * (newX - currentX) + zAxis * (newZ - currentZ);
     }
 }
